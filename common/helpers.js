@@ -6,11 +6,11 @@ module.exports = {
     sum,
 };
 
-function getInput(dirname) {
+function getInput(dirname, removeEmptyLines = true) {
     const inputPath = path.resolve(dirname, "./input.txt");
-    return fs.readFileSync(inputPath, "utf-8")
-        .split("\n")
-        .filter(e => e);
+    const input = fs.readFileSync(inputPath, "utf-8").split("\n");
+
+    return removeEmptyLines ? input.filter(e => e) : input;
 }
 
 function sum(a,b) {

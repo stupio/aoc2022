@@ -1,15 +1,9 @@
+const { getInput, sum } = require("../common/helpers");
+const input = getInput(__dirname);
+
 const ROCK = "rock";
 const PAPER = "paper";
 const SCISSORS = "scissors";
-
-// imports
-const fs = require("fs");
-const path = require("path");
-
-// parse input
-const inputPath = path.resolve(__dirname, "./input");
-const input = fs.readFileSync(inputPath, "utf-8");
-const inputArray = input.split("\n").filter((e) => e);
 
 const winMap = {
     [ROCK]: PAPER,
@@ -29,16 +23,15 @@ const pointMap = {
     [SCISSORS]: 3,
 };
 
-const translatedArray = inputArray.map(translateRound1);
-const plannedRoundsArray = inputArray.map(translateRound2);
+const points = input
+    .map(translateRound1)
+    .map(countPoints)
+    .reduce(sum);
 
-const points = translatedArray.reduce((previous, current) => {
-    return previous + countPoints(current);
-}, 0);
-
-const plannedPoints = plannedRoundsArray.reduce((previous, current) => {
-    return previous + countPoints(current);
-}, 0);
+const plannedPoints = input
+    .map(translateRound2)
+    .map(countPoints)
+    .reduce(sum);
 
 console.log({ points, plannedPoints });
 
@@ -46,11 +39,11 @@ console.log({ points, plannedPoints });
 function countPoints(round) {
     const [elf, me] = round.split(" ");
 
-    if (me === elf) {
+    if (me === elf) { // draw
         return 3 + pointMap[me];
-    } else if (me === winMap[elf]) {
+    } else if (me === winMap[elf]) { // win
         return 6 + pointMap[me];
-    } else {
+    } else { // loose
         return pointMap[me];
     }
 }
@@ -63,7 +56,6 @@ function translateRound1(round) {
         .replace(/C|Z/g, SCISSORS);
 }
 
-// round is 'rock X'
 function translateRound2(round) {
     const [elf, me] = round.split(" ");
 
@@ -74,11 +66,11 @@ function translateRound2(round) {
 
     let translatedMe;
 
-    if (me === "Z") {
+    if (me === "Z") { // win
         translatedMe = winMap[translatedElf];
-    } else if (me === "Y") {
+    } else if (me === "Y") { // draw
         translatedMe = translatedElf;
-    } else {
+    } else { // loose
         translatedMe = looseMap[translatedElf];
     }
 

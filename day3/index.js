@@ -1,5 +1,4 @@
-const { getInput, sum } = require('../common/helpers');
-
+const { getInput, sum } = require("../common/helpers");
 const input = getInput(__dirname);
 
 // part one
@@ -20,7 +19,7 @@ console.log({ wrongItems, badges });
 
 
 function splitCompartments(items) {
-    const temp = items.split('');
+    const temp = items.split("");
     const first = temp.splice(0, temp.length / 2);
     const second = temp;
 
@@ -57,7 +56,7 @@ function getGroups(input) {
 }
 
 function findBadge(group) {
-    const [first, second, third] = group.map(e => new Set(e.split('')));
+    const [first, second, third] = group.map(e => new Set(e.split("")));
 
     for(let item of first) {
         if (second.has(item) && third.has(item)) {
