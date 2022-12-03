@@ -1,0 +1,21 @@
+{
+    "root": true,
+    "extends": [
+        "eslint:recommended"
+    ],
+    "parserOptions": {
+        "ecmaVersion": "latest"
+    },
+    "env": {
+        "node": true,
+        "es6": true
+    },
+    "rules": {
+        "semi":"warn",
+        "object-curly-spacing":["warn", "always"],
+        "block-spacing":"warn",
+        "curly":"warn",
+        "no-trailing-spaces":"warn",
+        "comma-dangle":["warn", "always-multiline"]
+    }
+}
