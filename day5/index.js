@@ -2,33 +2,34 @@ const { getInput } = require("../common/helpers");
 const input = getInput(__dirname);
 
 let lanes = Array(Math.ceil(input[0].length / 4))
-    .fill(null)
-    .map(_ => []);
+    .fill(0)
+    .map(() => []);
 
-while (!input[0].replace(/ /g, "").startsWith("123")) {
-    const regex = /\[[A-Z]\]/g;
-    const line = input.shift().matchAll(regex);
+input
+    .filter(line => line.startsWith("["))
+    .map(line => {
+        return [...line.matchAll(/\w/g)].forEach(e => {
+            return lanes[(e.index - 1) / 4].unshift(e[0]);
+        });
+    });
 
-    let box = line.next();
-    while (!box.done) {
-        const lane = box.value.index/4;
-        lanes[lane].unshift(box.value[0]);
-        box = line.next();
-    }
+
+const part1 = JSON.parse(JSON.stringify(lanes));
+const part2 = JSON.parse(JSON.stringify(lanes));
+
+input.filter(line => line.startsWith("move"))
+    .map(line => line.match(/\d+/g).map(Number))
+    .forEach(([numberOfItems, from, to]) => {
+        const crates1 = part1[from - 1].splice(-numberOfItems, numberOfItems);
+        part1[to - 1].push(...crates1.reverse());
+
+        const crates2 = part2[from - 1].splice(-numberOfItems, numberOfItems);
+        part2[to - 1].push(...crates2);
+    });
+
+function topCrates(lanes) {
+    return lanes.map(e => e[e.length - 1].replace(/\W/g, "")).join("");
 }
 
-input.splice(0,1); // removes 12345 line
-
-while (input.length) {
-    const [numberOfItems, from, to] = input.shift().match(/\d+/g).map(Number);
-
-    const crates = lanes[from - 1].splice(-numberOfItems, numberOfItems);
-    lanes[to - 1].push(...crates);
-    console.log([numberOfItems, from, to], crates, lanes[to - 1]);
-
-    // break;
-}
-
-const result = lanes.map(e => e[e.length - 1].replace(/\W/g, "")).join("");
-
-console.log({ result });
+console.log("CrateMover 9000:", topCrates(part1));
+console.log("CrateMover 9001:", topCrates(part2));
