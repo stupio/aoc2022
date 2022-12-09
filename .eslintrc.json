@@ -17,7 +17,7 @@
         "curly":"warn",
         "no-trailing-spaces":"warn",
         "comma-dangle":["warn", "always-multiline"],
-        "indent": ["warn", 4],
+        "indent": ["warn", 4, {"SwitchCase": 1}],
         "quotes": ["warn", "double"],
         "eol-last": "warn"
     }
