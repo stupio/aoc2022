@@ -4,8 +4,8 @@ const path = require("path");
 const inputPath = path.resolve(__dirname, "./input.txt");
 const input = fs.readFileSync(inputPath, "utf-8").split("\n").filter(e => e);
 
-const part1 = new Array(2).fill(null).map(e => [0, 0]);
-const part2 = new Array(10).fill(null).map(e => [0, 0]);
+const part1 = new Array(2).fill(null).map(() => [0, 0]);
+const part2 = new Array(10).fill(null).map(() => [0, 0]);
 
 const result = input
     .reduce(({ part1Set, part2Set }, line) => {
