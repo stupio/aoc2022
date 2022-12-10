@@ -30,9 +30,9 @@ const crt = cycles.reduce((c, val, i) => {
     const pixel = i % 40 + 1;
 
     if (pixel >= sprite && pixel <= sprite+2) {
-        c += "#";
+        c += "\u2588";
     } else {
-        c += ".";
+        c += " ";
     }
 
     if(pixel === 40) {
