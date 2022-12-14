@@ -3,7 +3,7 @@ String.prototype.v = function () { return this.charCodeAt(0); };
 const fs = require("fs");
 const path = require("path");
 
-const inputPath = path.resolve(__dirname, "./input.txt");
+const inputPath = path.resolve(__dirname, "./marek.txt");
 const input = fs
     .readFileSync(inputPath, "utf-8")
     .split("\n")
@@ -11,135 +11,83 @@ const input = fs
     .filter(e => e);
 
 
-const points = findStartPart1(input);
-const start = points.start;
-const end = points.end;
+const points = findStart(input);
 
 // part 1
-console.time("part1");
-
-const part1 = calculateDistanceFrom(start, end);
-console.log({ part1 });
-
-console.timeEnd("part1");
-
-// part2
-console.time("part2");
-
-const lowestPoints = findStartPart2(input);
-const points2 = Math.min(...lowestPoints.map(startA => calculateDistanceFrom(startA, end)));
-
-console.log({ part2: points2 });
-
-console.timeEnd("part2");
+const part1 = p1(points.end, points.start);
+const part2 = p1(points.end);
+console.log({ part1, part2 });
 
 
-
-
-function findStartPart1(lines) {
+function findStart(lines) {
     let start;
     let end;
 
     lines.forEach((line, y) => {
         line.forEach((char, x) => {
             if (char === "S") {
-                start = [x,y].join();
-                lines[y][x] = String.fromCharCode("a".v() - 1);
+                start = [y,x];
+                lines[y][x] = "a";
             }
 
             if (char === "E") {
-                end = [x,y].join();
-                lines[y][x] = String.fromCharCode("z".v() + 1);
+                end = [y,x];
+                lines[y][x] = "z";
             }
         });
     });
 
-    return {  start,end };
+    return { start,end };
 }
 
-function findStartPart2(lines) {
-    let nodes = [];
+function p1(start, end) {
+    const visited = {};
+    const queue = [start]; // [y,x]
 
-    lines.forEach((line, y) => {
-        line.forEach((char, x) => {
-            // find only A where it has B neighbour
-            const hasB = lines[y-1]?.[x] && lines[y-1]?.[x].v() === lines[y][x].v() + 1 ||
-                lines[y]?.[x+1] && lines[y][x+1]?.v() === lines[y][x].v() + 1 ||
-                lines[y+1]?.[x] && lines[y+1]?.[x].v() === lines[y][x].v() + 1 ||
-                lines[y]?.[x-1] && lines[y][x-1]?.v() === lines[y][x].v() + 1;
+    visited[start.join()] = 0;
 
-            if (char === "a" && hasB) {
-                nodes.push([x,y].join());
+    while (queue.length) {
+        const addr = queue.shift();
+        const neighbours = findNeighbours(input,addr);
+
+        for (let node of neighbours) {
+            if (!end && input[addr[0]][addr[1]] === "a") {
+                return visited[addr];
             }
-        });
-    });
 
-    return nodes;
+            if (!visited[node.join()]) {
+                visited[node.join()] = visited[addr] + 1;
+                queue.push(node);
+            }
+        }
+    }
+
+    return visited[end.join()];
 }
 
-function findNodes(lines) {
-    const nodes = {};
+function findNeighbours(matrix, node) {
+    const maxx = matrix[0].length - 1;
+    const maxy = matrix.length - 1;
+    const [y,x] = node;
 
-    lines.forEach((line, y) => line.forEach((_, x) => {
-        const key = [x,y].join();
-        const node = {
-            key,
-            nodes: [],
-            visited: false,
-            distance: Infinity,
-        };
+    const height = matrix[y][x].v() - 2;
+    const neighbours = [];
 
-        if (lines[y-1]?.[x] && lines[y-1][x].v() <= lines[y][x].v() + 1) {
-            node.nodes.push([x, y-1].join()); // up node
-        }
+    if (x > 0 && height < matrix[y][x-1]?.v()) {
+        neighbours.push([y, x-1]);
+    }
 
-        if (lines[y]?.[x+1] && lines[y][x+1].v() <= lines[y][x].v() + 1) {
-            node.nodes.push([x+1, y].join()); // right node
-        }
+    if (x < maxx && height < matrix[y][x+1]?.v()) {
+        neighbours.push([y, x+1]);
+    }
 
-        if (lines[y+1]?.[x] && lines[y+1][x].v() <= lines[y][x].v() + 1) {
-            node.nodes.push([x, y+1].join()); // down node
-        }
+    if (y > 0 && height < matrix[y-1][x]?.v()) {
+        neighbours.push([y-1,x]);
+    }
 
-        if (lines[y]?.[x-1] && lines[y][x-1].v() <= lines[y][x].v() + 1) {
-            node.nodes.push([x-1, y].join()); // left node
-        }
+    if (y < maxy && height < matrix[y+1][x]?.v()) {
+        neighbours.push([y+1,x]);
+    }
 
-        nodes[key] = node;
-    }));
-
-    return nodes;
-}
-
-function calculateDistance(nodes, addr) {
-    const currentNode = nodes[addr];
-
-    const next = currentNode?.nodes
-        .map(nodeAddr => nodes[nodeAddr])
-        .filter(node => node)
-        .map(node => {
-            node.distance = Math.min(node.distance, currentNode.distance + 1);
-            return node.key;
-        }) ?? [];
-
-    delete nodes[addr];
-
-    return next;
-}
-
-function calculateDistanceFrom(start, end) {
-    const nodes = findNodes(input); // map all nodes and find child nodes
-
-    nodes[start].distance = 0; // mark starting point with 0 distance
-
-    let next = start;
-    let queue = [];
-
-    do {
-        const addToQueue = calculateDistance(nodes, next);
-        queue.push(...addToQueue);
-        next = queue.shift();
-    } while (next && next !== end);
-
-    return nodes[end].distance;
+    return neighbours;
 }
